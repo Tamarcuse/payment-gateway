@@ -1,13 +1,16 @@
 require 'rest-client'
+require_relative 'repository'
+
 
 module Chargers
   class Base
-    attr_reader :data
+    attr_reader :data, :repo
 
     OK_STATUS = 200.freeze
 
-    def initialize(data:)
+    def initialize(data:, repo: Repository)
       @data = data
+      @repo = repo
     end
 
     def charge(charge_url, payload, headers)
@@ -25,25 +28,11 @@ module Chargers
 
     private
     def update_error_counter(reason)
-      error_counter = ErrorCounter.where(
-        merchant: identifier,
-        reason: reason
-      ).first
-
-      if error_counter.present?
-        error_counter.count = error_counter.count + 1
-        error_counter.save
-      else
-        create_error_counter(identifier, reason)
-      end
+      repo.update_error_counter(identifier, reason)
     end
 
     def create_error_counter(identifier, reason)
-      ErrorCounter.create(
-        merchant: identifier,
-        reason: reason,
-        count: 1
-      )
+      repo.create_error_counter(identifier, reason)
     end
 
     def identifier
