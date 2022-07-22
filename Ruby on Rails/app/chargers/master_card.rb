@@ -6,16 +6,13 @@ module Chargers
     CHARGE_URL = 'https://interview.riskified.com/mastercard/capture_card'.freeze
 
     def charge
-      res = RestClient.post(CHARGE_URL, payload, headers)
-      puts "MasterCard res: #{res.inspect}"
-      handle_response(res)
+      super(CHARGE_URL, payload, headers)
     end
 
     private
 
     def handle_response(res)
-      puts "MasterCard success? #{res.code == OK_STATUS}"
-      res.code == OK_STATUS ? success_result : failure_result
+      res.present? && res.code == OK_STATUS ? success_result : failure_result
     end
 
     def headers

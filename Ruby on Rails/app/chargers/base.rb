@@ -10,6 +10,17 @@ module Chargers
       @data = data
     end
 
+    def charge(charge_url, payload, headers)
+      begin
+        res = RestClient.post(charge_url, payload, headers)
+        handle_response(res)
+      rescue RestClient::BadRequest => e
+        failure_result
+      rescue StandardError => e
+        retry_result
+      end
+    end
+
     private
     def identifier
       @identifier ||= data[:identifier]
@@ -48,6 +59,10 @@ module Chargers
         def success?
           true
         end
+
+        def retriable?
+          false
+        end
       end.new
     end
 
@@ -55,6 +70,22 @@ module Chargers
       Struct.new(:card) do
         def success?
           false
+        end
+
+        def retriable?
+          false
+        end
+      end.new
+    end
+
+    def retry_result
+      Struct.new(:card) do
+        def success?
+          false
+        end
+
+        def retriable?
+          true
         end
       end.new
     end

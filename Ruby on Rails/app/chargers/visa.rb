@@ -7,18 +7,14 @@ module Chargers
     SUCCESS = 'Success'.freeze
 
     def charge
-      puts "Visa Charge.."
-      res = RestClient.post(CHARGE_URL, payload, headers)
-      puts "Visa res: #{res}"
-      handle_response(res)
+      super(CHARGE_URL, payload, headers)
     end
 
     private
 
     def handle_response(res)
       res_body = JSON.parse(res.body)
-      successful_charge = res.code == OK_STATUS && res_body[CHARGE_RESULT] == SUCCESS
-      puts "MasterCard success? #{successful_charge}"
+      successful_charge = res.present? && res.code == OK_STATUS && res_body[CHARGE_RESULT] == SUCCESS
       successful_charge ? success_result : failure_result
     end
 
