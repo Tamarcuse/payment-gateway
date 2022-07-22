@@ -8,10 +8,7 @@ class ChargesController < ApplicationController
   CARD_DECLINED = 'CARD_DECLINED'.freeze
 
   def create
-    res = ::Chargers::Context.charge(
-      data: charge_data
-    )
-    puts "create res: #{res}"
+    res = ::Chargers::Context.charge(data: charge_data)
 
     if res.success?
       render json: {}, status: 200
@@ -32,7 +29,7 @@ class ChargesController < ApplicationController
       params: params
     )
   end
-  
+
   def charge_data
     {
       identifier: request.headers['merchant-identifier'],
